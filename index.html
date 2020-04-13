@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css">
+
+  <title>Fablab</title>
+
+  <style type="text/css">
+  body {
+  margin: 0!important;
+  font-family: "Helvetica Neue", Helvetica, Arial;
+  font-weight: bold;
+  color: white;
+}
+
+.street-view > img,
+.street-view > video {
+  margin-top: 7%;
+  width: 100%;
+  height: 84%;
+}
+
+#timelineTags > button {
+  margin: 0!important;
+  padding: 0!important;
+}
+
+h1 {
+  position: fixed;
+  z-index: 2;
+  font-size: 20px;
+  top: 10px;
+  left: 10px;
+}
+
+.hotspot {
+  position: absolute;
+  z-index: 1;
+  opacity: 0.8;
+  margin-top: -1ex;
+}
+
+button > img:hover {
+  opacity: 1!important;
+}
+
+@font-face {
+    font-family: engine_regular;
+    src: url(fonts/engine_regular.otf);
+    font-weight: bold;
+}
+
+#aboutLinkDiv:hover,
+#networkingLinkDiv:hover {
+  border: 2px solid #FFF;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="container-fluid" style="padding: 0!important;">
+
+  <!--<audio autoplay loop id="background-song">
+    <source src="bensound-buddy.mp3" type="audio/mpeg">
+  </audio>-->
+  <button onclick="$('#background-song').trigger('pause');" style="background:none; border:none; color:#CCC; position:fixed; z-index:3; right:30px;"><img src="img/pause.png" style="opacity:0.4;" ></button>
+  <button onclick="$('#background-song').trigger('play');" style="background:none; border:none; color:#CCC; position:fixed; z-index:3; right:10px;"><img src="img/play.png" style="opacity:0.4;" ></button>
+
+  <div id="topDiv" style="background-color:#FFF!important; width:100%; height:71.5px; position:fixed; z-index:4; ">
+    <div class="col-lg-3">
+      <img src="img/logo.png" style="margin-top:12px; margin-left:50px; align:left; margin-bottom:2px;">
+    </div>
+
+    <div id="timelineContainer" class="col-lg-8" style="margin-top:2%;">
+      <div id="timelineTags" style="height: 15px;">
+        <button class="lineTags" id="about" onclick="" style="background:none; border:none; color:#CCC; position:absolute; left: 5%;"><img src="img/about.png" style="opacity:0.4;" ></button>
+
+        <button class="lineTags" id="sharing" onclick="" style="background:none; border:none; color:#CCC; position:absolute; left:18.3234269%;"><img src="img/sharing.png" style="opacity:0.4;" ></button>
+
+        <button class="lineTags" id="diy" onclick="" style="background:none; border:none; color:#CCC; position:absolute; left:35.3761017%;"><img src="img/diy.png" style="opacity:0.4;" ></button>
+
+        <button class="lineTags" id="diwo" onclick="" style="background:none; border:none; color:#CCC; position:absolute; left:52.5107604%;"><img src="img/diwo.png" style="opacity:0.4;" ></button>
+
+        <button class="lineTags" id="networking" onclick="" style="background:none; border:none; color:#CCC; position:absolute; left:99.2939278%;"><img src="img/networking.png" style="opacity:0.4;" ></button>
+      </div>
+      <div id="timeline" style=" margin-top:2.8%; background-color: #DF0012; background-color: rgba(13,96,106,1); height: 7px; position:inherit"></div>
+    </div>
+  </div>
+
+<a id="aboutLink" href="http://fablabtorino.org/associazione/" target="_blank">
+  <div id="aboutLinkDiv" style="width:100%; height:84%; margin-top:7%; position:fixed; z-index:3;"></div>
+</a>
+
+<a id="networkingLink" href="https://www.fablabs.io" target="_blank">
+  <div id="networkingLinkDiv" style="width:100%; height:84%; margin-top:7%; position:fixed; z-index:3;"></div>
+</a>
+
+  <div id="main" style="height: 1080px;">
+    <div class="street-view">
+      <img src="fotograma/vid-0001.jpg">
+    </div>
+
+
+    <div class="hotspot" data-position="0" data-speed="1" style="left: 130px;">
+      
+    </div>
+    
+    <div class="hotspot" data-position="0.3" data-speed="2" style="right: 130px;">
+      
+    </div>
+    
+    <div class="hotspot" data-position="0.4" data-speed="1.5" style="left: 130px;">
+      
+    </div>
+    
+    <div class="hotspot" data-position="0.7" data-speed="0.7" style="left: 130px;">
+      
+    </div>
+    
+    <div class="hotspot" data-position="1" data-speed="3" style="right: 130px;">
+      
+    </div>
+
+
+  </div>
+    
+    
+
+
+
+  <script src="js/jquery-1.6.js"></script>
+  <script src="js/ProgressiveImageSequence.class.js"></script>
+
+
+  <script>
+    $(document).ready(function(){
+
+      var $doc = $(document);
+      var $win = $(window);
+
+      // dimensions - we want to cache them on window resize
+      var windowHeight, windowWidth;
+      var fullHeight, scrollHeight;
+      var streetImgWidth = 556, streetImgHeight = 313;
+      calculateDimensions();
+
+      var currentPosition = -1, targetPosition = 0;
+      var $videoContainer = $('.street-view');
+      var video = $('.street-view > img')[0];
+      var $hotspotElements = $('[data-position]');
+
+
+      // handling resize and scroll events
+      
+      function calculateDimensions() {
+        windowWidth = $win.width(1280);
+        windowHeight = $win.height(720);
+        fullHeight = $('#main').height();
+        scrollHeight = fullHeight - windowHeight;
+      }
+      
+      function handleResize() {
+        calculateDimensions();
+        resizeBackgroundImage();
+        handleScroll();
+      }
+      
+      function handleScroll() {
+        targetPosition = $win.scrollTop() / scrollHeight;
+      }
+      
+      // main render loop
+      window.requestAnimFrame = (function(){
+        return  window.requestAnimationFrame       ||
+                window.webkitRequestAnimationFrame ||
+                window.mozRequestAnimationFrame    ||
+                window.oRequestAnimationFrame      ||
+                window.msRequestAnimationFrame     ||
+                function(/* function */ callback, /* DOMElement */ element){
+                  window.setTimeout(callback, 1000 / 60);
+                };
+      })();
+
+
+      function animloop(){
+        if ( Math.floor(currentPosition*8000) != Math.floor(targetPosition*8000) ) {
+          currentPosition += (targetPosition - currentPosition) / 5;
+          render(currentPosition);
+        }
+        requestAnimFrame(animloop);
+      }
+
+      
+
+
+
+
+      // rendering
+
+
+      function render( position ) {
+        // position the elements
+        var minY = -windowHeight, maxY = windowHeight;
+        $.each($hotspotElements,function(index,element){
+          var $hotspot = $(element);
+          var elemPosition = Number( $hotspot.attr('data-position') );
+          var elemSpeed = Number( $hotspot.attr('data-speed') );
+          var elemY = windowHeight/2 + elemSpeed * (elemPosition-position) * scrollHeight;
+          if ( elemY < minY || elemY > maxY ) {
+            $hotspot.css({'visiblity':'none', top: '-1000px','webkitTransform':'none'});
+          } else {
+            $hotspot.css({'visiblity':'visible', top: elemY, position: 'fixed'});
+          }
+        });
+        
+        
+        renderVideo( position );
+      }
+
+
+
+      function resizeBackgroundImage(){
+        // get image container size
+        var scale = Math.max( windowHeight/streetImgHeight , windowWidth/streetImgWidth );
+        var width = scale * streetImgWidth , height = scale * streetImgHeight;
+        var left = (windowWidth-width)/2, top = (windowHeight-height)/2;
+        $videoContainer
+              .width(width).height(height)
+              .css('position','fixed')
+              .css('left',left+'px')
+              .css('top',top+'px');
+      }
+
+
+
+
+
+      // video handling
+
+      var imageSeqLoader = new ProgressiveImageSequence( "originals_jpg/vid-{index}.jpg" , 4957 , {
+        indexSize: 4,
+        onProgress: handleLoadProgress,
+        onComplete: handleLoadComplete,
+        stopAt: 1
+      } );
+
+      var loadCounterForIE = 0; // there seems to be a problem with ie calling the callback several times
+      imageSeqLoader.loadPosition(currentPosition,function(){
+        loadCounterForIE++;
+        if ( loadCounterForIE == 1 ) {
+          renderVideo(currentPosition);
+          imageSeqLoader.load();
+          imageSeqLoader.load();
+          imageSeqLoader.load();
+          imageSeqLoader.load();
+        }
+      });
+
+
+      var currentSrc, currentIndex;
+
+      function renderVideo(position) {
+        var index = Math.round( currentPosition * (imageSeqLoader.length-1) );
+        var img = imageSeqLoader.getNearest( index );
+        var nearestIndex = imageSeqLoader.nearestIndex;
+        if ( nearestIndex < 0 ) nearestIndex = 0;
+        var $img = $(img);
+        var src;
+        if ( !!img ) {
+          src = img.src;
+          if ( src != currentSrc ) {
+            video.src = src;
+            currentSrc = src;
+            var porcentaje=((nearestIndex+1)*100)/4589;
+
+            if (porcentaje < 14.2447223) {
+              $('.lineTags').hide();
+            };
+
+            if ( (porcentaje >= 14.2447223) && (porcentaje < 18.3234269) ) {
+              $('#about').show();
+              $('#sharing').hide();
+              $('#diy').hide();
+              $('#diwo').hide();
+              $('#networking').hide();
+            };
+
+            if ( (porcentaje >= 18.3234269) && (porcentaje < 35.3761017) ) {
+              $('#about').show();
+              $('#sharing').show();
+              $('#diy').hide();
+              $('#diwo').hide();
+              $('#networking').hide();
+            };
+
+            if ( (porcentaje >= 35.3761017) && (porcentaje < 52.5107604) ) {
+              $('#about').show();
+              $('#sharing').show();
+              $('#diy').show();
+              $('#diwo').hide();
+              $('#networking').hide();
+            };
+
+            if ( (porcentaje >= 52.5107604) && (porcentaje < 99.2939278) ) {
+              $('#about').show();
+              $('#sharing').show();
+              $('#diy').show();
+              $('#diwo').show();
+              $('#networking').hide();
+            };
+
+            if (porcentaje > 99.2939278) {
+              $('#about').show();
+              $('#sharing').show();
+              $('#diy').show();
+              $('#diwo').show();
+              $('#networking').show();
+            };
+
+            $('#timelineTags').css({width:porcentaje+'%',opacity:1});
+            $('#timeline').css({width:porcentaje+'%',opacity:1});
+
+            if (nearestIndex >= 695 && nearestIndex <= 753) {
+              $('#aboutLink').show();
+            }else{
+              $('#aboutLink').hide();
+            };
+
+            if (nearestIndex > 4922) {
+              $('#networkingLink').show();
+            }else{
+              $('#networkingLink').hide();
+            };
+
+            //console.log('Posicion = '+nearestIndex+' Porcentaje = '+porcentaje+' Position = '+currentPosition);
+          }
+        }
+      }
+
+
+
+      $('body').append('<div id="loading-bar" style="position:fixed; bottom:0; left:0; background-color: #DF0012; background-color: rgba(223,0,18,0.5); height: 10px;"></div>');
+      
+      function handleLoadProgress() {
+        var progress = imageSeqLoader.getLoadProgress() * 100;
+        if (Math.floor(progress) >= 60) {
+          //$('#loading').hide();
+          $( '#loading' ).fadeOut( "slow", function(){
+            $('#main').show();
+            $('#topDiv').show();
+            $('#loading').remove();
+          });
+          //$('#timeline').css({width:'100%',opacity:1});
+        }else{
+          $('#loading').show();
+          $('#main').hide();
+          $('#topDiv').hide();
+        };
+
+        $('#loadingPercentage').html(''+Math.floor(progress)+'%');
+        $('#loading-bar').css({width:progress+'%',opacity:1});
+      }
+
+      function handleLoadComplete() {
+        $('#loading-bar').css({width:'100%',opacity:0});
+      }
+
+
+
+
+      $win.resize( handleResize );
+      $win.scroll( handleScroll );
+
+      handleResize();
+      animloop();
+
+
+      $('#about').click(function (){
+        $(window).scrollTop(43);
+
+      });
+      
+      $('#sharing').click(function (){
+        $(window).scrollTop(56);
+      });
+      
+      $('#diy').click(function (){
+        $(window).scrollTop(100);
+      });
+      
+      $('#diwo').click(function (){
+        $(window).scrollTop(155);
+      });
+      
+      $('#networking').click(function (){
+        $(window).scrollTop(310);
+      });
+
+    });
+
+
+  </script>
+
+  <div id="loading" style="width:100%; height:100%; position:fixed; color:#FFF; background-image: url('img/portada.jpg'); background-size: cover; background-repeat: no-repeat; font-size:3.5em; font-family:engine_regular;">
+    <figure>
+      <img src="img/pantarei.gif" class="center-block img-responsive" style="margin-top:15%;" width="230px">
+      <figcaption class="text-center" id="loadingPercentage" style="margin-left:30px; margin-top:2%;"></figcaption>
+    </figure>
+  </div>
+</div>
+
+</body>
+</html>
+
+
+
